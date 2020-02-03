@@ -1,0 +1,338 @@
+{
+    "name": "RAW2CIM_S0_3_SubscriptionContact_N_1",
+    "description": "Data Pipeline Application",
+    "artifact": {
+        "name": "cdap-data-pipeline",
+        "version": "6.1.1",
+        "scope": "SYSTEM"
+    },
+    "config": {
+        "stages": [
+            {
+                "name": "ReadRaw_Email",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "ReadRaw_Email",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.13.2",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "format": "text",
+                        "serviceFilePath": "auto-detect",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"body\",\"type\":\"string\"},{\"name\":\"offset\",\"type\":\"long\"},{\"name\":\"FileName\",\"type\":\"string\"}]}",
+                        "referenceName": "NGBI_EXTR_CDC_F_EMAIL",
+                        "path": "${input.Directory_Email}",
+                        "pathField": "FileName",
+                        "project": "${input.Project}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"body\",\"type\":\"string\"},{\"name\":\"offset\",\"type\":\"long\"},{\"name\":\"FileName\",\"type\":\"string\"}]}"
+                    }
+                ],
+                "type": "batchsource",
+                "label": "ReadRaw_Email",
+                "icon": "fa-plug",
+                "$$hashKey": "object:5459",
+                "_uiPosition": {
+                    "left": "100px",
+                    "top": "136.82940673828125px"
+                }
+            },
+            {
+                "name": "DQ_ParseEmailFile",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "DQ_ParseEmailFile",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.1.4",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "precondition": "false",
+                        "threshold": "1",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OPT_OUT_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_REQUEST_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACTIVE_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATED_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_BATCH_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_ACTION_IND\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_PARALLEL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}",
+                        "workspaceId": "13dd1a05-ef11-40f2-98b4-d88719cdbb3e",
+                        "directives": "#pragma load-directives parse-as-csv-multi;\r\nparse-as-csv-multi :body '|;|' true\r\ndrop :body\r\nfilter-rows-on condition-true offset == 0\r\ndrop offset"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OPT_OUT_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_REQUEST_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACTIVE_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATED_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_BATCH_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_ACTION_IND\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_PARALLEL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "ReadRaw_Email",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"body\",\"type\":\"string\"},{\"name\":\"offset\",\"type\":\"long\"},{\"name\":\"FileName\",\"type\":\"string\"}]}"
+                    }
+                ],
+                "type": "transform",
+                "label": "DQ_ParseEmailFile",
+                "icon": "icon-DataPreparation",
+                "$$hashKey": "object:5460",
+                "_uiPosition": {
+                    "left": "400px",
+                    "top": "136.82940673828125px"
+                }
+            },
+            {
+                "name": "LOJ (Email_ID)",
+                "plugin": {
+                    "name": "Joiner",
+                    "type": "batchjoiner",
+                    "label": "LOJ (Email_ID)",
+                    "artifact": {
+                        "name": "core-plugins",
+                        "version": "2.3.4",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "joinKeys": "DQ_ParseEmailFile.EMAIL_ID = DQ_ParseEmailProfile.EMAIL_ID",
+                        "requiredInputs": "DQ_ParseEmailFile",
+                        "selectedFields": "DQ_ParseEmailFile.OPT_OUT_FLAG as OPT_OUT_FLAG,DQ_ParseEmailFile.VALIDATION_DT as VALIDATION_DT,DQ_ParseEmailFile.VALIDATION_REQUEST_DT as VALIDATION_REQUEST_DT,DQ_ParseEmailFile.EMAIL_ID as EMAIL_ID,DQ_ParseEmailFile.EMAIL as EMAIL,DQ_ParseEmailFile.ACTIVE_FLAG as ACTIVE_FLAG,DQ_ParseEmailFile.VALIDATED_FLAG as VALIDATED_FLAG,DQ_ParseEmailFile.TF_BATCH_NUM as TF_BATCH_NUM,DQ_ParseEmailFile.TF_ACTION_IND as TF_ACTION_IND,DQ_ParseEmailFile.TF_PARALLEL_ID as TF_PARALLEL_ID,DQ_ParseEmailFile.FileName as FileName,DQ_ParseEmailProfile.SOURCE_SYS as SOURCE_SYS,DQ_ParseEmailProfile.EMAIL_ID as EP_EMAIL_ID,DQ_ParseEmailProfile.EMAIL_ASSOCIATION_ID as EMAIL_ASSOCIATION_ID,DQ_ParseEmailProfile.EMAIL_TYPE as EMAIL_TYPE,DQ_ParseEmailProfile.ASSOCIATION_START_DT as ASSOCIATION_START_DT,DQ_ParseEmailProfile.ASSOCIATION_END_DT as ASSOCIATION_END_DT,DQ_ParseEmailProfile.CONTACT_ID as CONTACT_ID,DQ_ParseEmailProfile.CONTACT_TYPE as CONTACT_TYPE,DQ_ParseEmailProfile.ENTITY_LEVEL as ENTITY_LEVEL,DQ_ParseEmailProfile.CLIENT_KEY as CLIENT_KEY,DQ_ParseEmailProfile.ACCT_NUM as ACCT_NUM,DQ_ParseEmailProfile.SERV_EXT_KEY as SERV_EXT_KEY,DQ_ParseEmailProfile.TF_EXTRACT_DATE as TF_EXTRACT_DATE"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OPT_OUT_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_REQUEST_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACTIVE_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATED_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_BATCH_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_ACTION_IND\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_PARALLEL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"EP_EMAIL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ASSOCIATION_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"ASSOCIATION_START_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"ASSOCIATION_END_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"ENTITY_LEVEL\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACCT_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"SERV_EXT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "DQ_ParseEmailFile",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OPT_OUT_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_REQUEST_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACTIVE_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATED_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_BATCH_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_ACTION_IND\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_PARALLEL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}"
+                    },
+                    {
+                        "name": "DQ_ParseEmailProfile",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ASSOCIATION_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"ASSOCIATION_START_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"ASSOCIATION_END_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"ENTITY_LEVEL\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACCT_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"SERV_EXT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_BATCH_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_ACTION_IND\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_PARALLEL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL\",\"type\":[\"string\",\"null\"]},{\"name\":\"OPT_OUT_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_REQUEST_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACTIVE_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATED_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "type": "batchjoiner",
+                "label": "LOJ (Email_ID)",
+                "icon": "icon-joiner",
+                "$$hashKey": "object:5461",
+                "_uiPosition": {
+                    "left": "700px",
+                    "top": "231.82940673828125px"
+                }
+            },
+            {
+                "name": "CIMTransforms",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "CIMTransforms",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.1.4",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "precondition": "false",
+                        "threshold": "1",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"ContactPerson_contactId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_SubscriptionId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_originalSubscriptionId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_type\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_title\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_firstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_middleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_familyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_salutation\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_preferred\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_email\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_phoneNumber\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_fax\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_social\",\"type\":[\"string\",\"null\"]},{\"name\":\"Individual_birthDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Individual_gender\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_lastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"ContactPoint_attr1\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr2\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr3\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr4\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr5\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr6\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr7\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr8\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr9\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr10\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_loading_dt\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}",
+                        "directives": "set-column ContactPerson_contactId CONTACT_ID \r\nset-column ContactPerson_SubscriptionId SERV_EXT_KEY \r\nset-column ContactPerson_originalSubscriptionId SERV_EXT_KEY \r\n\r\nset-column ContactPerson_type '*NA'\r\nset-column IndividualName_title '*NA'\r\nset-column IndividualName_firstName '*NA'\r\nset-column IndividualName_middleName '*NA'\r\nset-column IndividualName_familyName '*NA'\r\nset-column IndividualName_salutation '*NA'\r\nset-column ContactPoint_preferred '*NA'\r\n\r\nset-column ContactPoint_email EMAIL \r\nset-column ContactPoint_phoneNumber '*NA'\r\nset-column ContactPoint_fax '*NA'\r\nset-column ContactPoint_social '*NA'\r\nset-column Individual_birthDate -719162\r\nset-column Individual_gender '*NA'\r\nset-column SubscriptionContact_fromDate -719162\r\nset-column SubscriptionContact_toDate -719162\r\nset-column SubscriptionContact_creationDate -719162\r\n\r\nset-column TF_EXTRACT_DATE empty(TF_EXTRACT_DATE) ? '19000101' : TF_EXTRACT_DATE\r\nparse-as-fixed-length TF_EXTRACT_DATE 4,2,2\r\nmerge TF_EXTRACT_DATE_1 TF_EXTRACT_DATE_2 year_month -\r\nmerge year_month TF_EXTRACT_DATE_3 SubscriptionContact_lastModifiedDate -\r\nparse-as-simple-date SubscriptionContact_lastModifiedDate yyyy-MM-dd\r\nset-column SubscriptionContact_lastModifiedDate TF_EXTRACT_DATE =='19000101' ? null : SubscriptionContact_lastModifiedDate\r\ndrop TF_EXTRACT_DATE,TF_EXTRACT_DATE_1,TF_EXTRACT_DATE_2,TF_EXTRACT_DATE_3,year_month\r\n\r\nset-column ContactPoint_attr1 ACTIVE_FLAG\r\nset-column ContactPoint_attr2 OPT_OUT_FLAG\r\nset-column ContactPoint_attr3 VALIDATED_FLAG\r\nset-column ContactPoint_attr4 VALIDATION_REQUEST_DT\r\nset-column ContactPoint_attr5 VALIDATION_DT\r\nset-column ContactPoint_attr6 EMAIL_TYPE\r\nset-column ContactPoint_attr7 ASSOCIATION_START_DT\r\nset-column ContactPoint_attr8 ASSOCIATION_END_DT\r\nset-column ContactPoint_attr9 CONTACT_TYPE\r\nset-column ContactPoint_attr10 ENTITY_LEVEL\r\n\r\nset-column SubscriptionContact_source SOURCE_SYS \r\n\r\n#pragma load-directives now;\r\nnow :LoadDate\r\nset-column curr_dt LoadDate.toString()\r\nparse-as-date :curr_dt UTC\r\nset-column SubscriptionContact_loading_dt curr_dt_1"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"ContactPerson_contactId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_SubscriptionId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_originalSubscriptionId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_type\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_title\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_firstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_middleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_familyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_salutation\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_preferred\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_email\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_phoneNumber\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_fax\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_social\",\"type\":[\"string\",\"null\"]},{\"name\":\"Individual_birthDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Individual_gender\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_lastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"ContactPoint_attr1\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr2\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr3\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr4\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr5\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr6\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr7\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr8\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr9\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr10\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_loading_dt\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "LOJ (Email_ID)",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OPT_OUT_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_REQUEST_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACTIVE_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATED_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_BATCH_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_ACTION_IND\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_PARALLEL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"EP_EMAIL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ASSOCIATION_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"ASSOCIATION_START_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"ASSOCIATION_END_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"ENTITY_LEVEL\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACCT_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"SERV_EXT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "type": "transform",
+                "label": "CIMTransforms",
+                "icon": "icon-DataPreparation",
+                "$$hashKey": "object:5462",
+                "_uiPosition": {
+                    "left": "1000px",
+                    "top": "231.82940673828125px"
+                }
+            },
+            {
+                "name": "WriteCIM_SubscriptionContact",
+                "plugin": {
+                    "name": "GCS",
+                    "type": "batchsink",
+                    "label": "WriteCIM_SubscriptionContact",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.13.2",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "project": "${output.Project}",
+                        "suffix": "yyyy-MM-dd-HH-mm-ss",
+                        "format": "avro",
+                        "serviceFilePath": "auto-detect",
+                        "location": "EU",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"ContactPerson_contactId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_SubscriptionId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_originalSubscriptionId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_type\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_title\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_firstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_middleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_familyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_salutation\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_preferred\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_email\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_phoneNumber\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_fax\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_social\",\"type\":[\"string\",\"null\"]},{\"name\":\"Individual_birthDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Individual_gender\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_lastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"ContactPoint_attr1\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr2\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr3\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr4\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr5\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr6\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr7\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr8\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr9\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr10\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_loading_dt\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}",
+                        "referenceName": "CIM_SubscriptionContact",
+                        "path": "${output.toLoadDir}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"ContactPerson_contactId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_SubscriptionId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_originalSubscriptionId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_type\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_title\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_firstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_middleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_familyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_salutation\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_preferred\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_email\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_phoneNumber\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_fax\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_social\",\"type\":[\"string\",\"null\"]},{\"name\":\"Individual_birthDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Individual_gender\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_lastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"ContactPoint_attr1\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr2\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr3\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr4\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr5\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr6\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr7\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr8\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr9\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr10\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_loading_dt\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "CIMTransforms",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"ContactPerson_contactId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_SubscriptionId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_originalSubscriptionId\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPerson_type\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_title\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_firstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_middleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_familyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"IndividualName_salutation\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_preferred\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_email\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_phoneNumber\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_fax\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_social\",\"type\":[\"string\",\"null\"]},{\"name\":\"Individual_birthDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Individual_gender\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"SubscriptionContact_lastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"ContactPoint_attr1\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr2\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr3\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr4\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr5\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr6\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr7\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr8\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr9\",\"type\":[\"string\",\"null\"]},{\"name\":\"ContactPoint_attr10\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"SubscriptionContact_loading_dt\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "type": "batchsink",
+                "label": "WriteCIM_SubscriptionContact",
+                "icon": "fa-plug",
+                "$$hashKey": "object:5463",
+                "_uiPosition": {
+                    "left": "1300px",
+                    "top": "231.82940673828125px"
+                }
+            },
+            {
+                "name": "ReadRaw_EmailProfile",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "ReadRaw_EmailProfile",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.13.2",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "format": "text",
+                        "serviceFilePath": "auto-detect",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"body\",\"type\":\"string\"},{\"name\":\"offset\",\"type\":\"long\"},{\"name\":\"FileName\",\"type\":\"string\"}]}",
+                        "referenceName": "NGBI_EXTR_CDC_F_EMAIL_PROFILE",
+                        "path": "${input.Directory_EmailProfile}",
+                        "pathField": "FileName",
+                        "project": "${input.Project}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"body\",\"type\":\"string\"},{\"name\":\"offset\",\"type\":\"long\"},{\"name\":\"FileName\",\"type\":\"string\"}]}"
+                    }
+                ],
+                "type": "batchsource",
+                "label": "ReadRaw_EmailProfile",
+                "icon": "fa-plug",
+                "$$hashKey": "object:5464",
+                "_uiPosition": {
+                    "left": "100px",
+                    "top": "326.82940673828125px"
+                }
+            },
+            {
+                "name": "DQ_ParseEmailProfile",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "DQ_ParseEmailProfile",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.1.4",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "precondition": "false",
+                        "threshold": "1",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ASSOCIATION_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"ASSOCIATION_START_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"ASSOCIATION_END_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"ENTITY_LEVEL\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACCT_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"SERV_EXT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_BATCH_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_ACTION_IND\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_PARALLEL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL\",\"type\":[\"string\",\"null\"]},{\"name\":\"OPT_OUT_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_REQUEST_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACTIVE_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATED_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}",
+                        "workspaceId": "13dd1a05-ef11-40f2-98b4-d88719cdbb3e",
+                        "directives": "#pragma load-directives parse-as-csv-multi;\nparse-as-csv-multi :body '|;|' true\ndrop :body\nfilter-rows-on condition-true offset == 0\ndrop offset\nfilter-rows-on condition-false ENTITY_LEVEL == 'Service'"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_ASSOCIATION_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"ASSOCIATION_START_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"ASSOCIATION_END_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CONTACT_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"ENTITY_LEVEL\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACCT_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"SERV_EXT_KEY\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_BATCH_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_ACTION_IND\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_PARALLEL_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"EMAIL\",\"type\":[\"string\",\"null\"]},{\"name\":\"OPT_OUT_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATION_REQUEST_DT\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACTIVE_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"VALIDATED_FLAG\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "ReadRaw_EmailProfile",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"body\",\"type\":\"string\"},{\"name\":\"offset\",\"type\":\"long\"},{\"name\":\"FileName\",\"type\":\"string\"}]}"
+                    }
+                ],
+                "type": "transform",
+                "label": "DQ_ParseEmailProfile",
+                "icon": "icon-DataPreparation",
+                "$$hashKey": "object:5465",
+                "_uiPosition": {
+                    "left": "400px",
+                    "top": "326.82940673828125px"
+                }
+            }
+        ],
+        "connections": [
+            {
+                "from": "ReadRaw_Email",
+                "to": "DQ_ParseEmailFile"
+            },
+            {
+                "from": "DQ_ParseEmailFile",
+                "to": "LOJ (Email_ID)"
+            },
+            {
+                "from": "LOJ (Email_ID)",
+                "to": "CIMTransforms"
+            },
+            {
+                "from": "CIMTransforms",
+                "to": "WriteCIM_SubscriptionContact"
+            },
+            {
+                "from": "ReadRaw_EmailProfile",
+                "to": "DQ_ParseEmailProfile"
+            },
+            {
+                "from": "DQ_ParseEmailProfile",
+                "to": "LOJ (Email_ID)"
+            }
+        ],
+        "comments": [],
+        "resources": {
+            "memoryMB": 2048,
+            "virtualCores": 1
+        },
+        "driverResources": {
+            "memoryMB": 2048,
+            "virtualCores": 1
+        },
+        "postActions": [],
+        "properties": {},
+        "processTimingEnabled": true,
+        "stageLoggingEnabled": false,
+        "engine": "mapreduce",
+        "schedule": "0 * * * *",
+        "maxConcurrentRuns": 1
+    }
+}
