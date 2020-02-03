@@ -1,0 +1,183 @@
+{
+    "name": "Raw2cim_A0_12_D_AreaCodeList_1_1",
+    "description": "Data Pipeline Application",
+    "artifact": {
+        "name": "cdap-data-pipeline",
+        "version": "6.1.0",
+        "scope": "SYSTEM"
+    },
+    "config": {
+        "resources": {
+            "memoryMB": 2048,
+            "virtualCores": 1
+        },
+        "driverResources": {
+            "memoryMB": 2048,
+            "virtualCores": 1
+        },
+        "connections": [
+            {
+                "from": "Read Raw Customer Siebl CodeList",
+                "to": "DQ_ParseFile"
+            },
+            {
+                "from": "DQ_ParseFile",
+                "to": "CIMTransforms"
+            },
+            {
+                "from": "CIMTransforms",
+                "to": "JavaScript"
+            },
+            {
+                "from": "JavaScript",
+                "to": "CIM CustSeibl CodeList"
+            }
+        ],
+        "comments": [],
+        "postActions": [],
+        "properties": {},
+        "processTimingEnabled": true,
+        "stageLoggingEnabled": false,
+        "stages": [
+            {
+                "name": "Read Raw Customer Siebl CodeList",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "Read Raw Customer Siebl CodeList",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.13.2",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "project": "${input.Project}",
+                        "format": "text",
+                        "serviceFilePath": "auto-detect",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"body\",\"type\":\"string\"},{\"name\":\"FileName\",\"type\":\"string\"},{\"name\":\"offset\",\"type\":\"long\"}]}",
+                        "pathField": "FileName",
+                        "referenceName": "Read_Raw_Customer_Siebl_CodeList",
+                        "path": "${input.Directory}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"body\",\"type\":\"string\"},{\"name\":\"FileName\",\"type\":\"string\"},{\"name\":\"offset\",\"type\":\"long\"}]}"
+            },
+            {
+                "name": "DQ_ParseFile",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "DQ_ParseFile",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.1.3",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "precondition": "false",
+                        "threshold": "1",
+                        "workspaceId": "84095ad3-a94e-4fb6-ae16-ce2439cb5356",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CUSTOMERACCOUNT\",\"type\":[\"string\",\"null\"]},{\"name\":\"FISCAL_NUMBER\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACCT_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"X_TLCL_TAX_PAYER_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]},{\"name\":\"X_VDF_IDENTIFIED_ACCOUNT\",\"type\":[\"string\",\"null\"]},{\"name\":\"CUST_STAT_CD\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_ROW_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_TAX_IDEN_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"X_VGE_ACCNT_FLG\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":\"string\"}]}",
+                        "directives": "#pragma load-directives parse-as-csv-multi;\nparse-as-csv-multi :body '|;|' true\ndrop :body\nfilter-row-if-true offset == 0\ndrop offset"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CUSTOMERACCOUNT\",\"type\":[\"string\",\"null\"]},{\"name\":\"FISCAL_NUMBER\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACCT_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"X_TLCL_TAX_PAYER_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]},{\"name\":\"X_VDF_IDENTIFIED_ACCOUNT\",\"type\":[\"string\",\"null\"]},{\"name\":\"CUST_STAT_CD\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_ROW_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_TAX_IDEN_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"X_VGE_ACCNT_FLG\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":\"string\"}]}",
+                "inputSchema": [
+                    {
+                        "name": "Read Raw Customer Siebl CodeList",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"body\",\"type\":\"string\"},{\"name\":\"FileName\",\"type\":\"string\"},{\"name\":\"offset\",\"type\":\"long\"}]}"
+                    }
+                ]
+            },
+            {
+                "name": "CIMTransforms",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "CIMTransforms",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.1.3",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "precondition": "false",
+                        "threshold": "1",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Code_value\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_Name\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_LastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"Codelist_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Codelist_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listVersionID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_languageID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listName\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}",
+                        "directives": "set-column :Code_value Code_value =X_TLCL_TAX_PAYER_TYPE\r\nset-column :Codelist_source Codelist_source =SOURCE_SYS\r\nset-column :Code_Name Code_Name =\"Unclassified\"\r\nset-column :Code_listName Code_listName=\"D Customer\"\r\nset-column :Codelist_fromDate Codelist_fromDate = -719162\r\nset-column :Codelist_creationDate Codelist_creationDate = -719162\r\nset-column :Code_listVersionID Code_listVersionID = '*NA'\r\nset-column :Code_languageID Code_languageID = '*NA'\r\nset-column :Codelist_toDate Codelist_toDate = -719162\r\nset-type :TF_EXTRACT_DATE string\r\nset-column :empty_extract exp:{empty(TF_EXTRACT_DATE) ? '19000101' : TF_EXTRACT_DATE}\r\nparse-as-fixed-length :empty_extract 4,2,2\r\nmerge :empty_extract_1 :empty_extract_2 :year_month '-'\r\nmerge :year_month :empty_extract_3 :year_month_day '-'\r\nset-column :Codelist_LastModifiedDate Codelist_LastModifiedDate = year_month_day + \" 00:00:00\"\r\nparse-as-simple-date :Codelist_LastModifiedDate yyyy-MM-dd HH:mm:ss\r\nset-column :Codelist_LastModifiedDate exp:{empty_extract == '19000101' ? null : Codelist_LastModifiedDate}\r\ndrop empty_extract,empty_extract_1,empty_extract_2\r\n\r\ndrop year_month,year_month_day,SOURCE_SYS,TF_EXTRACT_DATE,X_VGE_ACCNT_FLG,X_TLCL_TAX_PAYER_TYPE,CUSTOMERACCOUNT,FISCAL_NUMBER,ACCT_TYPE,X_VDF_IDENTIFIED_ACCOUNT,CUST_STAT_CD,CLIENT_ROW_ID,CLIENT_TAX_IDEN_NUM"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Code_value\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_Name\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_LastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"Codelist_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Codelist_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listVersionID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_languageID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listName\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}",
+                "inputSchema": [
+                    {
+                        "name": "DQ_ParseFile",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CUSTOMERACCOUNT\",\"type\":[\"string\",\"null\"]},{\"name\":\"FISCAL_NUMBER\",\"type\":[\"string\",\"null\"]},{\"name\":\"ACCT_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"X_TLCL_TAX_PAYER_TYPE\",\"type\":[\"string\",\"null\"]},{\"name\":\"SOURCE_SYS\",\"type\":[\"string\",\"null\"]},{\"name\":\"TF_EXTRACT_DATE\",\"type\":[\"string\",\"null\"]},{\"name\":\"X_VDF_IDENTIFIED_ACCOUNT\",\"type\":[\"string\",\"null\"]},{\"name\":\"CUST_STAT_CD\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_ROW_ID\",\"type\":[\"string\",\"null\"]},{\"name\":\"CLIENT_TAX_IDEN_NUM\",\"type\":[\"string\",\"null\"]},{\"name\":\"X_VGE_ACCNT_FLG\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":\"string\"}]}"
+                    }
+                ]
+            },
+            {
+                "name": "JavaScript",
+                "plugin": {
+                    "name": "JavaScript",
+                    "type": "transform",
+                    "label": "JavaScript",
+                    "artifact": {
+                        "name": "core-plugins",
+                        "version": "2.3.3",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "script": "var TS = (new Date()).getTime()*1000;\r\nfunction transform(input, emitter, context) {\r\n input.Codelist_loading_dt = TS;\r\n emitter.emit(input);\r\n }",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Code_value\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_Name\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_LastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"Codelist_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Codelist_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listVersionID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_languageID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listName\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_loading_dt\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Code_value\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_Name\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_LastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"Codelist_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Codelist_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listVersionID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_languageID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listName\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_loading_dt\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}",
+                "inputSchema": [
+                    {
+                        "name": "CIMTransforms",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Code_value\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_Name\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_LastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"Codelist_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Codelist_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listVersionID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_languageID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listName\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ]
+            },
+            {
+                "name": "CIM CustSeibl CodeList",
+                "plugin": {
+                    "name": "GCS",
+                    "type": "batchsink",
+                    "label": "CIM CustSeibl CodeList",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.13.2",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "project": "${output.Project}",
+                        "suffix": "yyyy-MM-dd-HH-mm-ss",
+                        "format": "avro",
+                        "serviceFilePath": "auto-detect",
+                        "location": "EU",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Code_value\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_Name\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_LastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"Codelist_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Codelist_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listVersionID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_languageID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listName\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_loading_dt\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}",
+                        "referenceName": "CIM_CustSeibl_CodeList",
+                        "path": "${output.toLoadDir}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Code_value\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_Name\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_LastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"Codelist_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Codelist_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listVersionID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_languageID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listName\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_loading_dt\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}",
+                "inputSchema": [
+                    {
+                        "name": "JavaScript",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Code_value\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_Name\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_source\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_LastModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"Codelist_fromDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Codelist_creationDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listVersionID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Code_languageID\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_toDate\",\"type\":[{\"type\":\"int\",\"logicalType\":\"date\"},\"null\"]},{\"name\":\"Code_listName\",\"type\":[\"string\",\"null\"]},{\"name\":\"FileName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Codelist_loading_dt\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}"
+                    }
+                ]
+            }
+        ],
+        "schedule": "0 * * * *",
+        "engine": "mapreduce",
+        "numOfRecordsPreview": 100,
+        "description": "Data Pipeline Application",
+        "maxConcurrentRuns": 1
+    }
+}
