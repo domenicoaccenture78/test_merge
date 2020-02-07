@@ -3,7 +3,7 @@
     "description": "Data Pipeline Application",
     "artifact": {
         "name": "cdap-data-pipeline",
-        "version": "Dome",
+        "version": "secondo aggiornamento",
         "scope": "SYSTEM"
     },
     "config": {
