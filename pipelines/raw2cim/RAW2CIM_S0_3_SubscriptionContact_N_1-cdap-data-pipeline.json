@@ -3,7 +3,7 @@
     "description": "Data Pipeline Application",
     "artifact": {
         "name": "cdap-data-pipeline",
-        "version": "secondo aggiornamento",
+        "version": "secondo aggiornamenzvsvsvasvwavto",
         "scope": "SYSTEM"
     },
     "config": {
@@ -40,7 +40,7 @@
                 "type": "batchsource",
                 "label": "ReadRaw_Email",
                 "icon": "fa-plug",
-                "$$hashKey": "object:5459",
+                "$$hashKey": "object:5456",
                 "_uiPosition": {
                     "left": "100px",
                     "top": "136.82940673828125px"
